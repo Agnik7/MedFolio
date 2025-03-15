@@ -11,12 +11,13 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { LoaderCircle } from 'lucide-react';
 export default function AuthModal({ user, setUser, authClass, itemVariants }) {
   const [mode, setMode] = useState('login');
   const [selectedRole, setSelectedRole] = useState('patient');
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const swal = withReactContent(Swal)
-
+  const [check,setCheck]=useState(true);
   const [name,setName] = useState("");
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
@@ -25,7 +26,41 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
   const [fees,setFees] = useState();
   const [experience,setExperience] = useState();
   const [city,setCity] = useState("");
-
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState();
+  const [bloodGroup, setBloodGroup] = useState("");
+  const [mobile, setMobile] = useState();
+  const specializations = [
+    'Allergist and Immunologist',
+    'Anesthesiologist',
+    'Dermatologist',
+    'Emergency Medicine Specialist',
+    'Family Medicine Physician',
+    'Internal Medicine Physician',
+    'Medical Geneticist',
+    'Neurologist',
+    'Nuclear Medicine Specialist',
+    'Obstetrician and Gynecologist',
+    'Ophthalmologist',
+    'Pathologist',
+    'Pediatrician',
+    'Physical Medicine and Rehabilitation Specialist',
+    'Preventive Medicine Specialist',
+    'Psychiatrist',
+    'Radiologist',
+    'Surgeon',
+    'Urologist',
+    'Cardiologist',
+    'Endocrinologist',
+    'Gastroenterologist',
+    'Hematologist',
+    'Infectious Disease Specialist',
+    'Nephrologist',
+    'Oncologist',
+    'Pulmonologist',
+    'Rheumatologist',
+    'General Practitioner'
+];
   const handleRoleSelect = (role) => {
     setSelectedRole(role); 
   };
@@ -36,19 +71,29 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
     setPassword("");
     setConfirmPassword("");
     setSpecialty("");
-    setFees(null);
-    setExperience(null);
+    setFees();
+    setExperience();
     setCity("");
+    setGender("");
+    setAge();
+    setBloodGroup("");
+    setMobile();
   }
 
   const navigate = useNavigate();
-
+  const [checkRegister,setCheckRegister]=useState(true);
   const handleRegister = async () => {
+    setCheckRegister(false);
+    let doctorFees;
     let newUser = {
       name: name,
       email: email,
       password: password,
       userType: "patient",
+      gender:gender,
+      age:age,
+      bloodGroup: bloodGroup,
+      mobile: mobile
     };
     if (password !== confirmPassword) {
       swal.fire({
@@ -60,31 +105,49 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
     else {
       if (selectedRole === 'doctor') {
         newUser.userType = 'doctor';
-        newUser.specialization = user.specialization;
-        newUser.fees = user.fees;
-        newUser.experience = user.experience;
-        newUser.city = user.city;
+        newUser.specialization = specialty;
+        newUser.fees = fees;
+        newUser.experience = experience;
+        newUser.city = city;
       }
       await axios.post(`${baseUrl}/user/register`, newUser)
         .then((res) => {
-          const firstName = res.data.user.name.split(' ')[0];
+          setCheckRegister(true);
+          let firstName = res.data.user.name.split(' ')[0];
+        if (res.data.user.type === 'doctor') {
+          firstName = res.data.user.name.startsWith('Dr. ') 
+            ? res.data.user.name.split(' ')[1] 
+            : firstName;
+        }
           setUser({
-            ...user,
             fullName: res.data.user.name,
-            userName: firstName,
-            email: res.data.user.email,
-            profilePic: res.data.user.profilePic,
-            type: res.data.user.type,
-            token: res.data.user.token,
-            isLoggedIn: true
+          userName: firstName,
+          email: res.data.user.email,
+          profilePic: res.data.user.profilePic,
+          type: res.data.user.type,
+          token: res.data.user.token,
+          isLoggedIn: true,
+          specialization: res.data.user.specialization,
+          fees: res.data.user.fees,
+          rating: res.data.user.rating,
+          gender:res.data.user.gender,
+          age:res.data.user.age,
+          bloodGroup:res.data.user.bloodGroup,
+          appointments: res.data.user.appointments,
+          searchHistory: res.data.user.search_history,
+          tests: res.data.user.tests,
+          city: res.data.user.city,
+          mobile: res.data.user.mobile,
+          experience: res.data.user.experience
           });
           
           swal.fire({
             title: "Successful!",
             text: "User Registered Successfully",
             icon: "success"
+          }).then(() => {
+            navigate(`/${firstName}/dashboard`);
           });
-          navigate(`/${firstName}/dashboard`);
         })
         .catch((error) => {
           console.log(error);
@@ -99,22 +162,41 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
   };
 
   const handleLogin = async () => {
+    setCheck(false);
     await axios.post(`${baseUrl}/user/login`, {
       email: email,
       password: password,
       userType: selectedRole
     })
       .then((res) => {
-        const firstName = res.data.user.name.split(' ')[0];
+        setCheck(true);
+        console.log(res)
+        let firstName = res.data.user.name.split(' ')[0];
+        if (res.data.user.type === 'doctor') {
+          firstName = res.data.user.name.startsWith('Dr. ') 
+            ? res.data.user.name.split(' ')[1] 
+            : firstName;
+        }
         setUser({
-          ...user,
           fullName: res.data.user.name,
           userName: firstName,
           email: res.data.user.email,
           profilePic: res.data.user.profilePic,
           type: res.data.user.type,
           token: res.data.user.token,
-          isLoggedIn: true
+          isLoggedIn: true,
+          specialization: res.data.user.specialization,
+          fees: res.data.user.fees,
+          rating: res.data.user.rating,
+          gender:res.data.user.gender,
+          age:res.data.user.age,
+          bloodGroup:res.data.user.bloodGroup,
+          appointments: res.data.user.appointments,
+          searchHistory: res.data.user.search_history,
+          tests: res.data.user.tests,
+          city: res.data.user.city,
+          mobile: res.data.user.mobile,
+          experience: res.data.user.experience
         });
         swal.fire({
           title: "Successful!",
@@ -122,7 +204,6 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
           icon: "success"
         }).then(() => {
           navigate(`/${firstName}/dashboard`);
-          
         });
       })
       .catch((error) => {
@@ -134,9 +215,10 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
       });
     clear();
   };
-
+  const [checkReset,setCheckReset]=useState(true);
   const handleReset = async () => {
-    alert(baseUrl);
+    setCheckReset(false);
+    //alert(baseUrl);
     if (password !== confirmPassword) {
       console.log("Passwords don't match");
     } else {
@@ -145,6 +227,7 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
         password: password
       })
         .then((res) => {
+          setCheckReset(true);
           console.log(res);
           swal.fire({
             title: "Successful!",
@@ -178,7 +261,7 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
               Register
             </h4>
             <div className="flex flex-col w-full items-center justify-center mx-auto">
-            <input
+              <input
                 type="text"
                 value={name}
                 onChange={(e)=>{setName(e.target.value)}}
@@ -224,70 +307,85 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
                     <p className="text-[0.9rem]">Doctor</p>
                   </button>
                 </div>
-                {selectedRole === 'doctor' && (
+                {selectedRole === 'doctor' ? (
                   <div className="w-full mt-3">
-                    <select value={user.specialization} onChange={(e) => setUser({ ...user, specialization: e.target.value })} className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none border-black w-full">
+                    <select 
+                      value={specialty} 
+                      onChange={(e) => setSpecialty(e.target.value)} 
+                      className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none border-black w-full">
                       <option value="" disabled>Your Specialty</option>
-                      <option value="allergy-immunology">Allergy and Immunology</option>
-                      <option value="anesthesiology">Anesthesiology</option>
-                      <option value="dermatology">Dermatology</option>
-                      <option value="emergency-medicine">Emergency Medicine</option>
-                      <option value="family-medicine">Family Medicine</option>
-                      <option value="internal-medicine">Internal Medicine</option>
-                      <option value="medical-genetics">Medical Genetics</option>
-                      <option value="neurology">Neurology</option>
-                      <option value="nuclear-medicine">Nuclear Medicine</option>
-                      <option value="obstetrics-gynecology">Obstetrics and Gynecology</option>
-                      <option value="ophthalmology">Ophthalmology</option>
-                      <option value="pathology">Pathology</option>
-                      <option value="pediatrics">Pediatrics</option>
-                      <option value="physical-medicine-rehabilitation">Physical Medicine and Rehabilitation</option>
-                      <option value="preventive-medicine">Preventive Medicine</option>
-                      <option value="psychiatry">Psychiatry</option>
-                      <option value="radiology">Radiology</option>
-                      <option value="surgery">Surgery</option>
-                      <option value="urology">Urology</option>
-                      <option value="cardiology">Cardiology</option>
-                      <option value="endocrinology">Endocrinology</option>
-                      <option value="gastroenterology">Gastroenterology</option>
-                      <option value="hematology">Hematology</option>
-                      <option value="infectious-disease">Infectious Disease</option>
-                      <option value="nephrology">Nephrology</option>
-                      <option value="oncology">Oncology</option>
-                      <option value="pulmonology">Pulmonology</option>
-                      <option value="rheumatology">Rheumatology</option>
-                      <option value="general">General Medicine</option>
+                      {specializations.map((specialization, index) => (
+                        <option key={index} value={specialization}>
+                          {specialization}
+                        </option>
+                      ))}
                     </select>
                     <input
                       type="number"
-                      value={user.fees}
-                      onChange={(e) => setUser({ ...user, fees: e.target.value })}
+                      value={fees}
+                      onChange={(e) => setFees(e.target.value)}
                       placeholder="Fees per Appointment"
                       className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
                     />
                     <input
                       type="number"
                       placeholder="Years of Experience"
-                      value={user.experience}
-                      onChange={(e) => setUser({ ...user, experience: e.target.value })}
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
                       className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
                     />
                     <input
                       type="text"
                       placeholder="Your City"
-                      value={user.city}
-                      onChange={(e) => setUser({ ...user, city: e.target.value })}
+                      value={city}
+                      onChange={(e) => setCity( e.target.value)}
                       className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
                     />
                   </div>
-                )}
+                ):(<>
+                  <select value={gender} onChange={(e) => setGender( e.target.value)} className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none border-black w-full">
+                <option value="" disabled>Your Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Others">Others</option>
+              </select>
+              <input
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder="Your Age"
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+              />
+              <select value={bloodGroup} onChange={(e) => setBloodGroup( e.target.value)} className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none border-black w-full">
+                <option value="" disabled>Your Blood Group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O- </option>
+              </select>
+              <input
+                type="number"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="Your Contact No."
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+              />
+                </>)}
               </div>
+              
             </div>
             <div className="flex gap-4 w-full my-4 flex-col items-center justify-center">
               <button className="px-4 py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150"
                 onClick={handleRegister}
               >
-                Register
+                <div className={`${checkRegister==false?"block animate-spin":"hidden"} `}>
+                <LoaderCircle />
+                </div>
+                <p className={`${checkRegister==true?"block":"hidden"} `}>Register</p>
               </button>
               <p>Already a user? <span onClick={() => setMode('login')} className="cursor-pointer text-[#1C4C58] font-medium hover:underline">Login</span></p>
             </div>
@@ -332,7 +430,10 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
               <button className="px-4 py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150"
                 onClick={handleReset}
               >
-                Reset Password
+                <div className={`${checkReset==false?"block animate-spin":"hidden"} `}>
+                <LoaderCircle />
+                </div>
+                <p className={`${checkReset==true?"block":"hidden"} `}>Reset Password</p>
               </button>
               <p>Back to <span onClick={() => setMode('login')} className="cursor-pointer text-[#1C4C58] font-medium hover:underline">Login</span></p>
             </div>
@@ -389,10 +490,15 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
               </div>
             </div>
             <div className="flex gap-4 w-full flex-col items-center justify-center">
-              <button className="px-4 py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150"
+              <button className={`  px-4  py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150`}
                 onClick={handleLogin}
               >
-                Login
+                <div className={`${check==false?"block animate-spin":"hidden"} `}>
+                <LoaderCircle />
+                </div>
+                <p className={`${check==true?"block":"hidden"} `}>Login</p>
+                
+                
               </button>
               <p>New user? <span onClick={() => setMode('register')} className="cursor-pointer text-[#1C4C58] font-medium hover:underline">Register Now</span></p>
             </div>

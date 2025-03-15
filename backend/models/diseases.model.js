@@ -1,65 +1,47 @@
+const { MongoClient } = require("mongodb");
+const MONGO_URL = process.env.MONGO_URL;
+const MedDB = new MongoClient(MONGO_URL);
 
-
-
-
-const diseaseAnalyse = async({username, email, hashedPassword, userType, profilePic, specialization, city})=>{
+const diseaseAnalyse = async({ userEmail, text, textSymptom, imageURL, city }) => {
     let existing = false;
     try {
         await MedDB.connect();
         const DATABASE = MedDB.db('MedfolioDB');
-        let USERCOLLECTION;
-        let user;
-        if(userType === 'patient')
-        {
-            user = {
-                name:username,
-                email:email,
-                password: hashedPassword,
-                type:userType,
-                profilePic: profilePic,
-                appointments: [],
-                search_history:[],
-                tests:[]
-            };
-            USERCOLLECTION = DATABASE.collection('User');
+        const USERCOLLECTION = DATABASE.collection('User');
+        const DOCTORCOLLECTION = DATABASE.collection('Doctors');
 
-        }
-        else
-        {
-            user = {
-                name:username,
-                email:email,
-                password: hashedPassword,
-                type:userType,
-                profilePic: profilePic,
-                specialization: specialization,
-                appointments: [],
-                rating: 0,
-                city:city
-            };
-            USERCOLLECTION = DATABASE.collection('Doctors')
-        }
-        const existingUser = await USERCOLLECTION.findOne({ email: email });
-        if (existingUser) {
-            existing = true;
-            throw new Error("User exists in database");
-          }
-        const insertUser = await USERCOLLECTION.insertOne(user);
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET
-          );
-          //user._id=user._id;
-          user.email = email;
-          user.name = username;
-          user.token = token;
-          delete user.password;
-          return {user:user, error: null, status:200};
+        // Fetch doctors based on specialization and city
+        const doctorList = await DOCTORCOLLECTION.find({
+            specialization: text.doctor,
+            city: city
+        }).toArray();
+
+        // Update user's search history
+        await USERCOLLECTION.updateOne(
+            { email: userEmail },
+            {
+                $push: {
+                    search_history: {
+                        textSymptom: textSymptom || null,
+                        imageURL: imageURL || null,
+                        disease: text.disease,
+                        specialist: text.doctor,
+                        doctorList: doctorList
+                    }
+                }
+            }
+        );
+
+        // Return the list of doctors
+        return doctorList;
     }
-    catch(error){
-        return {token: null, error: error, status: existing?400:500};
+    catch (error) {
+        console.error("Error in diseaseAnalyse:", error);
+        return { token: null, error: error, status: existing ? 400 : 500 };
     }
     finally {
         await MedDB.close();
     }
 }
+
+module.exports = { diseaseAnalyse };

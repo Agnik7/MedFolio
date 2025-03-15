@@ -29,3 +29,40 @@ backdrop-filter: blur( 5px );
 border-radius: 10px;
 border: 1px solid rgba( 255, 255, 255, 0.18 );
 }
+.modal{
+    transform:translate(-50%,-50%);
+}
+/* .box{
+    box-shadow: 1px 1px 15px 20px blue;
+} */
+.test select , .test input{
+    padding-left: 0.1rem;
+    border-radius: 0.5rem;
+    
+
+}
+
+::-webkit-scrollbar{
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track{
+    background: white;
+    transition: all 0.3s ease-in-out;
+  }
+  ::-webkit-scrollbar-thumb{
+     /* will leave after image loads */
+     background: #1C4C58;
+   border-radius: 10px;
+   transition: all 0.3s ease-in-out;
+  }
+  ::-webkit-scrollbar-thumb:hover{
+    /* will leave after image loads */
+  
+  border-radius: 3px;
+  }
+  .box{
+    box-shadow: inset 0 0 5px #133139;
+  }
+  .box1{
+    box-shadow: inset 0 0 5px rgb(73, 3, 3);
+  }

@@ -1,5 +1,6 @@
-import React,{useEffect} from 'react'
+import React,{useEffect, useState} from 'react'
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import { useParams } from 'react-router-dom';
 function randomID(len) {
     let result = '';
     if (result) return result;
@@ -13,19 +14,20 @@ function randomID(len) {
     return result;
   }
   
+  
   export function getUrlParams(
     url = window.location.href
   ) {
     let urlStr = url.split('?')[1];
     return new URLSearchParams(urlStr);
   }
-export default function AppointmentPage({userName}) {
-    const roomID = getUrlParams().get('roomID') || randomID(5);
+export default function AppointmentPage({user,setUser,count,setCount}) {
+    const {roomId} = useParams();
     let myMeeting = async (element) => {
    // generate Kit Token
     const appID = Number(import.meta.env.VITE_ZEGOCLOUD_APP_ID);
     const serverSecret = import.meta.env.VITE_ZEGOCLOUD_SERVER_SECRET;
-    const kitToken =  ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID,  randomID(5),  userName);
+    const kitToken =  ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomId,  randomID(5),  user.userName);
 
   
    // Create instance object from Kit Token.
@@ -33,6 +35,7 @@ export default function AppointmentPage({userName}) {
     // start the call
     zp.joinRoom({
       container: element,
+      layout:'Grid',
       sharedLinks: [
         {
           name: 'copy link',
@@ -40,21 +43,22 @@ export default function AppointmentPage({userName}) {
            window.location.protocol + '//' + 
            window.location.host + window.location.pathname +
             '?roomID=' +
-            roomID,
+            roomId,
         },
       ],
       scenario: {
-        mode: ZegoUIKitPrebuilt.GroupCall, // To implement 1-on-1 calls, modify the parameter here to [ZegoUIKitPrebuilt.OneONoneCall].
+        mode: ZegoUIKitPrebuilt.GroupCall,
+         // To implement 1-on-1 calls, modify the parameter here to [ZegoUIKitPrebuilt.OneONoneCall].
       },
     });
 
   
 };
+
 return (
   <div
-    className="myCallContainer"
+    className="myCallContainer w-fit h-screen sm:h-[calc(100%-10rem)] absolute top-[7rem] left-0 sm:left-[20%] mx-4 p-4 bg-[white]"
     ref={myMeeting}
-    style={{ width: '100vw', height: '100vh' }}
   ></div>
 );
 }

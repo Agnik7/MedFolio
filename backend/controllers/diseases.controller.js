@@ -1,5 +1,4 @@
 console.log("running")
-const api = "AIzaSyAEzkubJ86qRADKhOQWdre0OiJuQIsMDdI";
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require("fs");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

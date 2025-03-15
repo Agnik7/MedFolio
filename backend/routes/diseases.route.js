@@ -8,6 +8,6 @@ router.get("/",(req,res)=>{
 router.get("/add",user);
 router.post("/register",register);
 router.post("/login",login);*/
-router.get('/details',diseaseDetails)
+router.post('/details',diseaseDetails)
 
 module.exports=router;

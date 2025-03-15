@@ -3,8 +3,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const MONGO_URL = process.env.MONGO_URL;
 const MedDB=new MongoClient(MONGO_URL);
+const {generateRoomId} = require('../utilities/utils');
 // Register method contains both register for patient and register for doctor.
-const registerUser = async({username, email, hashedPassword, userType, profilePic, specialization, city, fees, experience})=>{
+const registerUser = async({username, email, hashedPassword, userType, profilePic, specialization, city, fees, experience, gender, age, bloodGroup, mobile})=>{
     let existing = false;
     try {
         await MedDB.connect();
@@ -21,7 +22,11 @@ const registerUser = async({username, email, hashedPassword, userType, profilePi
                 profilePic: profilePic,
                 appointments: [],
                 search_history:[],
-                tests:[]
+                tests:[],
+                gender:gender,
+                age:age,
+                bloodGroup:bloodGroup,
+                mobile:mobile
             };
             USERCOLLECTION = DATABASE.collection('User');
 
@@ -39,7 +44,10 @@ const registerUser = async({username, email, hashedPassword, userType, profilePi
                 experience: experience,
                 appointments: [],
                 rating: 0,
-                city:city
+                city:city,
+                gender:gender,
+                age:age,
+                bloodGroup:bloodGroup
             };
             USERCOLLECTION = DATABASE.collection('Doctors')
         }
@@ -137,7 +145,237 @@ const resetPassword = async ({ email, hashedPassword }) => {
       await MedDB.close();
     }
   };
-  
 
+const bookMedicalAppointment = async({doctorEmail, userEmail, date, time, disease})=>{
+    try {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        console.log("Inside model")
+        let userCollection = DATABASE.collection('User');
+        let doctorCollection = DATABASE.collection('Doctors');
+        // Find the user and doctor
+        const user = await userCollection.findOne({ email: userEmail });
+        const doctor = await doctorCollection.findOne({ email: doctorEmail });
+        console.log("User = ",user);
+        console.log("Doctor = ",doctor);
+        if (!user || !doctor) {
+            throw new Error('User or Doctor not found');
+        }
+        const roomId = await generateRoomId(5);
+        const userAppointment = {
+            doctorName: doctor.name,
+            doctorEmail: doctor.email,
+            doctorPic:doctor.profilePic,
+            doctorSpecialization: doctor.specialization,
+            doctorFees:doctor.fees,
+            doctorExperience:doctor.experience, 
+            doctorRating:doctor.rating,
+            doctorCity:doctor.city,
+            disease:disease,
+            date,
+            time,
+            linkID: roomId
+        };
 
-module.exports = {registerUser,loginUser, resetPassword};
+        const doctorAppointment = {
+            userId: user._id,
+            userName: user.name,
+            userEmail: user.email,
+            userPic:user.profilePic,
+            disease:disease,
+            date,
+            time,
+            linkID: roomId
+        };
+
+        const updatedUser = await userCollection.findOneAndUpdate(
+            { email: userEmail },
+            { $push: { appointments: { $each: [userAppointment], $position: 0 } } },
+            { returnDocument: 'after' }
+        );
+        delete updatedUser.password;
+        console.log(updatedUser)
+        // Update doctor's appointments
+        const upd = await doctorCollection.findOneAndUpdate(
+            { email: doctorEmail },
+            { $push: { appointments: { $each: [doctorAppointment], $position: 0 } } }
+        );
+        return { status: 200, error:null, user:updatedUser };
+
+      } catch (error) {
+        return { error: error.message, status: 404 };
+      } finally {
+        await MedDB.close();
+      }
+}
+const editUser = async({username, email, userType, profilePic, specialization, city, fees, experience, gender, age, bloodGroup, mobile})=>{
+    let existing = false;
+
+    try {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        let USERCOLLECTION;
+        console.log("In the model")
+        let user;
+        if(userType === 'patient')
+        {
+            user = {
+                name:username,
+                email:email,
+                type:userType,
+                profilePic: profilePic,
+                gender:gender,
+                age:age,
+                bloodGroup:bloodGroup,
+                mobile:mobile
+            };
+            USERCOLLECTION = DATABASE.collection('User');
+
+        }
+        else
+        {
+            user = {
+                name:username,
+                email:email,
+                type:userType,
+                profilePic: profilePic,
+                specialization: specialization,
+                fees: fees,
+                experience: experience,
+                city:city
+            };
+            USERCOLLECTION = DATABASE.collection('Doctors')
+        }
+        const editedUser = await USERCOLLECTION.findOneAndUpdate({ email: email },{$set:user},{ returnDocument: 'after' });
+            console.log(editedUser)
+          delete editedUser.password;
+          return {user:user, error: null, status:200};
+    }
+    catch(error){
+        return {token: null, error: error, status:500};
+    }
+    finally {
+        await MedDB.close();
+    }
+}
+
+const fetchDoctor=async({email})=>{
+    let existing = false;
+
+    try {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        
+        let USERCOLLECTION = DATABASE.collection('Doctors');
+        console.log("In the model")
+        const doctor = await USERCOLLECTION.findOne({email:email})
+        
+        return {doctor:doctor};
+    }
+    catch(error){
+        return {token: null, error: error, status:500};
+    }
+    finally {
+        await MedDB.close();
+    }
+}
+const fetchDoctorByName=async({name})=>{
+    let existing = false;
+
+    try {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        
+        let USERCOLLECTION = DATABASE.collection('Doctors');
+        console.log("In the model")
+        const doctor = await USERCOLLECTION.findOne({name:name})
+        
+        return {doctor:doctor};
+    }
+    catch(error){
+        return {token: null, error: error, status:500};
+    }
+    finally {
+        await MedDB.close();
+    }
+}
+
+const postNotification=async({doctor,user,userName, date, time})=>{
+    let existing = false;
+
+    try {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        
+        let USERCOLLECTION = DATABASE.collection('Notifications');
+        console.log("In the model")
+        const notification = {
+            doctorEmail: doctor.email,
+            userEmail: user.email,
+            message: `Appointment of ${user.name} with ${doctor.name} on ${date} at ${time}`,
+            read: false,
+            createdAt: new Date()
+        }
+        const insertNotification = await USERCOLLECTION.insertOne(notification)
+        
+        if(insertNotification)
+            return true;
+        else
+            return false;
+    }
+    catch(error){
+        return {token: null, error: error, status:500};
+    }
+    finally {
+        await MedDB.close();
+    }
+}
+
+const fetchNotification = async ({ email, userType }) => {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        console.log("User email = ", email, "userType = ", userType)
+        const USERCOLLECTION = DATABASE.collection('Notifications');
+        console.log("Connected to the database");
+
+        let notifications;
+        if (userType === 'patient') {
+            notifications = await USERCOLLECTION.find({ userEmail: email }).toArray();
+        } else {
+            notifications = await USERCOLLECTION.find({ doctorEmail: email }).toArray();
+        }
+
+        console.log("Notifications fetched:", notifications);
+        
+        return notifications;
+    
+};
+
+const postRating = async({doctor,userRating, patientsLength})=>{
+    try {
+        await MedDB.connect();
+        const DATABASE = MedDB.db('MedfolioDB');
+        
+        let USERCOLLECTION = DATABASE.collection('Doctors');
+        console.log("In the model")
+        console.log(`Rating: ${(Number(doctor.rating)+Number(userRating))/patientsLength}, ${typeof doctor.rating}, ${typeof userRating}, ${typeof patientsLength}`)
+        const insertRating = await USERCOLLECTION.findOneAndUpdate({email:doctor.email},
+        {
+            $set:{
+                rating: `${(Number(doctor.rating)+Number(userRating))/patientsLength}`
+            }
+        })
+        
+        if(insertRating)
+            return true;
+        else
+            return false;
+    }
+    catch(error){
+        return {token: null, error: error, status:500};
+    }
+    finally {
+        await MedDB.close();
+    }
+}
+module.exports = {registerUser,loginUser, resetPassword,bookMedicalAppointment,editUser,fetchDoctor, fetchDoctorByName,postNotification, fetchNotification, postRating};

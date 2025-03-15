@@ -1,6 +1,6 @@
 import React from 'react'
-import footer from "../assets/footer.png"
-import foot from "../assets/foot.png"
+import footer from "../assets/footer.svg"
+import foot from "../assets/foot.svg"
 
 export default function Footer() {
   return (

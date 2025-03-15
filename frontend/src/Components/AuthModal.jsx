@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   ModalBody,
@@ -7,14 +7,161 @@ import {
 } from "./ui/animated-modal";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, BriefcaseMedical } from 'lucide-react';
-
-export default function AuthModal() {
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+export default function AuthModal({ user, setUser, authClass, itemVariants }) {
   const [mode, setMode] = useState('login');
-  const [selectedRole, setSelectedRole] = useState(null);  
+  const [selectedRole, setSelectedRole] = useState('patient');
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const swal = withReactContent(Swal)
+
+  const [name,setName] = useState("");
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
+  const [confirmPassword,setConfirmPassword] = useState("");
+  const [specialty,setSpecialty] = useState("");
+  const [fees,setFees] = useState();
+  const [experience,setExperience] = useState();
+  const [city,setCity] = useState("");
 
   const handleRoleSelect = (role) => {
-    setSelectedRole(role);
+    setSelectedRole(role); 
   };
+
+  const clear = ()=>{
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setSpecialty("");
+    setFees(null);
+    setExperience(null);
+    setCity("");
+  }
+
+  const navigate = useNavigate();
+
+  const handleRegister = async () => {
+    let newUser = {
+      name: name,
+      email: email,
+      password: password,
+      userType: "patient",
+    };
+    if (password !== confirmPassword) {
+      swal.fire({
+        title: <p>An Unexpected error occurred</p>,
+        text: "Passwords Dont Match",
+        icon: "error"
+      });
+    } 
+    else {
+      if (selectedRole === 'doctor') {
+        newUser.userType = 'doctor';
+        newUser.specialization = user.specialization;
+        newUser.fees = user.fees;
+        newUser.experience = user.experience;
+        newUser.city = user.city;
+      }
+      await axios.post(`${baseUrl}/user/register`, newUser)
+        .then((res) => {
+          const firstName = res.data.user.name.split(' ')[0];
+          setUser({
+            ...user,
+            fullName: res.data.user.name,
+            userName: firstName,
+            email: res.data.user.email,
+            profilePic: res.data.user.profilePic,
+            type: res.data.user.type,
+            token: res.data.user.token,
+            isLoggedIn: true
+          });
+          
+          swal.fire({
+            title: "Successful!",
+            text: "User Registered Successfully",
+            icon: "success"
+          });
+          navigate(`/${firstName}/dashboard`);
+        })
+        .catch((error) => {
+          console.log(error);
+          swal.fire({
+            title: <p>An Unexpected error occurred</p>,
+            text: error.response.data,
+            icon: "error"
+          });
+        });
+      clear();
+    }
+  };
+
+  const handleLogin = async () => {
+    await axios.post(`${baseUrl}/user/login`, {
+      email: email,
+      password: password,
+      userType: selectedRole
+    })
+      .then((res) => {
+        const firstName = res.data.user.name.split(' ')[0];
+        setUser({
+          ...user,
+          fullName: res.data.user.name,
+          userName: firstName,
+          email: res.data.user.email,
+          profilePic: res.data.user.profilePic,
+          type: res.data.user.type,
+          token: res.data.user.token,
+          isLoggedIn: true
+        });
+        swal.fire({
+          title: "Successful!",
+          text: "User Logged In Successfully",
+          icon: "success"
+        }).then(() => {
+          navigate(`/${firstName}/dashboard`);
+          
+        });
+      })
+      .catch((error) => {
+        swal.fire({
+          title: <p>An Unexpected error occurred</p>,
+          text: error.response.data.message,
+          icon: "error"
+        });
+      });
+    clear();
+  };
+
+  const handleReset = async () => {
+    alert(baseUrl);
+    if (password !== confirmPassword) {
+      console.log("Passwords don't match");
+    } else {
+      await axios.post(`${baseUrl}/user/reset`, {
+        email: user.email,
+        password: password
+      })
+        .then((res) => {
+          console.log(res);
+          swal.fire({
+            title: "Successful!",
+            text: "Password Reset Successfully",
+            icon: "success"
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      clear();
+    }
+  };
+
+  useEffect(() => {
+    clear();
+  }, [mode]);
 
   const renderContent = () => {
     switch (mode) {
@@ -31,23 +178,31 @@ export default function AuthModal() {
               Register
             </h4>
             <div className="flex flex-col w-full items-center justify-center mx-auto">
-              <input
+            <input
                 type="text"
+                value={name}
+                onChange={(e)=>{setName(e.target.value)}}
                 placeholder="Name"
                 className="mb-3 p-2 bg-transparent text-[#1C4C58] border-b-2 outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
               <input
                 type="email"
+                value={email}
+                onChange={(e)=>{setEmail(e.target.value)}}
                 placeholder="Email"
                 className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
               <input
                 type="password"
+                value={password}
+                onChange={(e)=>{setPassword(e.target.value)}}
                 placeholder="Password"
                 className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
               <input
                 type="password"
+                value={confirmPassword}
+                onChange={(e)=>{setConfirmPassword(e.target.value)}}
                 placeholder="Confirm Password"
                 className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
@@ -69,13 +224,72 @@ export default function AuthModal() {
                     <p className="text-[0.9rem]">Doctor</p>
                   </button>
                 </div>
+                {selectedRole === 'doctor' && (
+                  <div className="w-full mt-3">
+                    <select value={user.specialization} onChange={(e) => setUser({ ...user, specialization: e.target.value })} className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none border-black w-full">
+                      <option value="" disabled>Your Specialty</option>
+                      <option value="allergy-immunology">Allergy and Immunology</option>
+                      <option value="anesthesiology">Anesthesiology</option>
+                      <option value="dermatology">Dermatology</option>
+                      <option value="emergency-medicine">Emergency Medicine</option>
+                      <option value="family-medicine">Family Medicine</option>
+                      <option value="internal-medicine">Internal Medicine</option>
+                      <option value="medical-genetics">Medical Genetics</option>
+                      <option value="neurology">Neurology</option>
+                      <option value="nuclear-medicine">Nuclear Medicine</option>
+                      <option value="obstetrics-gynecology">Obstetrics and Gynecology</option>
+                      <option value="ophthalmology">Ophthalmology</option>
+                      <option value="pathology">Pathology</option>
+                      <option value="pediatrics">Pediatrics</option>
+                      <option value="physical-medicine-rehabilitation">Physical Medicine and Rehabilitation</option>
+                      <option value="preventive-medicine">Preventive Medicine</option>
+                      <option value="psychiatry">Psychiatry</option>
+                      <option value="radiology">Radiology</option>
+                      <option value="surgery">Surgery</option>
+                      <option value="urology">Urology</option>
+                      <option value="cardiology">Cardiology</option>
+                      <option value="endocrinology">Endocrinology</option>
+                      <option value="gastroenterology">Gastroenterology</option>
+                      <option value="hematology">Hematology</option>
+                      <option value="infectious-disease">Infectious Disease</option>
+                      <option value="nephrology">Nephrology</option>
+                      <option value="oncology">Oncology</option>
+                      <option value="pulmonology">Pulmonology</option>
+                      <option value="rheumatology">Rheumatology</option>
+                      <option value="general">General Medicine</option>
+                    </select>
+                    <input
+                      type="number"
+                      value={user.fees}
+                      onChange={(e) => setUser({ ...user, fees: e.target.value })}
+                      placeholder="Fees per Appointment"
+                      className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Years of Experience"
+                      value={user.experience}
+                      onChange={(e) => setUser({ ...user, experience: e.target.value })}
+                      className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Your City"
+                      value={user.city}
+                      onChange={(e) => setUser({ ...user, city: e.target.value })}
+                      className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                    />
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-4 w-full my-4 flex-col items-center justify-center">
-              <button className="px-4 py-2 w-full text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] border-white hover:bg-white hover:text-[#1C4C58] hover:border-[#1C4C58] transition-all ease-linear duration-150">
+              <button className="px-4 py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150"
+                onClick={handleRegister}
+              >
                 Register
               </button>
-              <p>Already a user? <span onClick={() => setMode('login')} className="cursor-pointer text-blue-500 hover:underline">Login</span></p>
+              <p>Already a user? <span onClick={() => setMode('login')} className="cursor-pointer text-[#1C4C58] font-medium hover:underline">Login</span></p>
             </div>
           </motion.div>
         );
@@ -92,27 +306,35 @@ export default function AuthModal() {
               Reset Password
             </h4>
             <div className="flex flex-col w-full items-center justify-center mx-auto">
-              <input
+            <input
                 type="email"
+                value={email}
+                onChange={(e)=>{setEmail(e.target.value)}}
                 placeholder="Email"
-                className="mb-4 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
               <input
                 type="password"
-                placeholder="New Password"
-                className="mb-4 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                value={password}
+                onChange={(e)=>{setPassword(e.target.value)}}
+                placeholder="Password"
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
               <input
                 type="password"
+                value={confirmPassword}
+                onChange={(e)=>{setConfirmPassword(e.target.value)}}
                 placeholder="Confirm Password"
-                className="mb-4 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
             </div>
             <div className="flex gap-4 w-full flex-col items-center my-4 justify-center">
-              <button className="px-4 py-2 w-full text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] border-white hover:bg-white hover:text-[#1C4C58] hover:border-[#1C4C58] transition-all ease-linear duration-150">
+              <button className="px-4 py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150"
+                onClick={handleReset}
+              >
                 Reset Password
               </button>
-              <p>Already a user? <span onClick={() => setMode('login')} className="cursor-pointer text-blue-500 hover:underline">Login</span></p>
+              <p>Back to <span onClick={() => setMode('login')} className="cursor-pointer text-[#1C4C58] font-medium hover:underline">Login</span></p>
             </div>
           </motion.div>
         );
@@ -129,25 +351,50 @@ export default function AuthModal() {
               Login
             </h4>
             <div className="flex flex-col w-full items-center justify-center mx-auto">
-              <input
+            <input
                 type="email"
+                value={email}
+                onChange={(e)=>{setEmail(e.target.value)}}
                 placeholder="Email"
-                className="mb-4 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="mb-4 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
+                className="mb-3 p-2 border-b-2 bg-transparent text-[#1C4C58] outline-none placeholder:text-[#1C4C58] placeholder:text-opacity-80 border-black w-full"
               />
-              <a onClick={() => setMode('forgotPassword')} className="text-sm w-full text-right text-blue-500 hover:underline mb-6 cursor-pointer">
+              <a onClick={() => setMode('forgotPassword')} className="text-sm w-full text-right text-[#1C4C58] font-medium hover:underline mb-6 cursor-pointer">
                 Forgot Password?
               </a>
+              <div className="w-full text-[#1C4C58]">
+                <p>Select your role:</p>
+                <div className="flex flex-row my-2 gap-4">
+                  <button
+                    className={`rounded-xl flex flex-col justify-center items-center w-[5rem] h-[5rem] border-2 border-[#1C4C58] ${selectedRole === 'patient' ? 'bg-[#1C4C58] text-white' : 'bg-white text-[#1C4C58]'}`}
+                    onClick={() => handleRoleSelect('patient')}
+                  >
+                    <User className="w-8 h-8" />
+                    <p className="text-[0.9rem]">Patient</p>
+                  </button>
+                  <button
+                    className={`rounded-xl flex flex-col justify-center items-center w-[5rem] h-[5rem] border-2 border-[#1C4C58] ${selectedRole === 'doctor' ? 'bg-[#1C4C58] text-white' : 'bg-white text-[#1C4C58]'}`}
+                    onClick={() => handleRoleSelect('doctor')}
+                  >
+                    <BriefcaseMedical className="w-8 h-8" />
+                    <p className="text-[0.9rem]">Doctor</p>
+                  </button>
+                </div>
+              </div>
             </div>
             <div className="flex gap-4 w-full flex-col items-center justify-center">
-              <button className="px-4 py-2 w-full text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] border-white hover:bg-white hover:text-[#1C4C58] hover:border-[#1C4C58] transition-all ease-linear duration-150">
+              <button className="px-4 py-2 w-full text-[1.1rem] text-white bg-[#1C4C58] p-2 rounded-[2rem] flex justify-center items-center border-[2px] hover:bg-white hover:text-[#1C4C58] border-[#1C4C58] transition-all ease-linear duration-150"
+                onClick={handleLogin}
+              >
                 Login
               </button>
-              <p>New user? <span onClick={() => setMode('register')} className="cursor-pointer text-blue-500 hover:underline">Register Now</span></p>
+              <p>New user? <span onClick={() => setMode('register')} className="cursor-pointer text-[#1C4C58] font-medium hover:underline">Register Now</span></p>
             </div>
           </motion.div>
         );
@@ -155,15 +402,15 @@ export default function AuthModal() {
   };
 
   return (
-    <div className="mx-4">
+    <div className={authClass ? "mx-0" : "mx-4"}>
       <Modal>
         <ModalTrigger className="flex justify-center">
-          <button className="xsm:mx-2 mx-1 text-center text-[#1C4C58] bg-white p-2 rounded-[2rem] flex justify-center items-center border-[2px] border-[solid] border-[#1C4C58] hover:bg-[#1C4C58] hover:text-white hover:border-[#ffffff] transition-all ease-linear duration-150">
+          <motion.button variants={itemVariants} className={authClass ? authClass : "xsm:mx-2 mx-1 text-center text-[#1C4C58] bg-white p-2 rounded-[2rem] flex justify-center items-center border-[2px] border-[solid] border-[#1C4C58] hover:bg-[#1C4C58] hover:text-white transition-all ease-linear duration-150"}>
             Start now
-          </button>
+          </motion.button>
         </ModalTrigger>
-        <ModalBody className="mx-4 bg-[#F4D5D4] rounded-lg">
-          <ModalContent className="w-full">
+        <ModalBody className="mx-4 bg-[#BAC9D5] rounded-lg">
+          <ModalContent className="w-full overflow-x-hidden overflow-y-auto">
             <AnimatePresence mode="popLayout">
               {renderContent()}
             </AnimatePresence>

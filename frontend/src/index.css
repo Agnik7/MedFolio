@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Yaldevi:wght@200..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,4 +11,10 @@
 }
 html{
     scroll-behavior: smooth;
+}
+body{
+    font-family: "Yaldevi", sans-serif;
+}
+.btn:hover .arrow{
+    display: block;
 }

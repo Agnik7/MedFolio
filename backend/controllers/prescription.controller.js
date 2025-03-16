@@ -6,9 +6,6 @@ const getPrescription = async(req,res)=>{
 }
 const postPrescription = async(req,res)=>{
     const {userEmail,doctorEmail, details} = req.body;
-    console.log(req.body);
-    /* const {user,doctor,error, status} = fetchUserAndDoctor({userEmail:userEmail,doctorEmail:doctorEmail});
-    console.log("User = ", user) */
     const flag = await addPrescription({userEmail, doctorEmail, details});
     if(flag)
         res.status(200).json({success:true, message:"Prescription posted successfully"});
@@ -17,9 +14,6 @@ const postPrescription = async(req,res)=>{
 }
 const modifyPrescription = async(req,res)=>{
     const {userEmail,doctorEmail, details} = req.body;
-    console.log(req.body);
-    /* const {user,doctor,error, status} = fetchUserAndDoctor({userEmail:userEmail,doctorEmail:doctorEmail});
-    console.log("User = ", user) */
     const flag = await updatePrescription({userEmail, doctorEmail, details});
     if(flag)
         res.status(200).json({success:true, message:"Prescription posted successfully"});

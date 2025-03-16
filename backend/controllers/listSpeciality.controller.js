@@ -6,7 +6,6 @@ const listSpeciality=async(req,res)=>
 {
     
     const {outputArray}=await list();
-    console.log(outputArray);
     return res.status(200).json({success:true, outputArray})
 }
 

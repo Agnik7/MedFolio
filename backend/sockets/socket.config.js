@@ -11,8 +11,6 @@ function initSocket(server) {
   });
 
   io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
     socket.on('join', (userEmail) => {
       socket.join(userEmail);
       console.log(`User ${socket.id} joined room ${userEmail}`);

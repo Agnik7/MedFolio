@@ -20,8 +20,6 @@ async function connectToDB() {
                 }
             }
         );
-
-        console.log("Done");
     } catch (error) {
         console.log(error);
     } finally {

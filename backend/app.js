@@ -2,11 +2,7 @@
 const { MongoClient } = require('mongodb');
 const bcrypt = require("bcryptjs");
 const uri = process.env.MONGO_URL;
-console.log(uri);
-
  const MedDB=new MongoClient(uri);
-
-
 async function connectToDB() {
     try {
         await MedDB.connect();
@@ -1360,7 +1356,6 @@ async function connectToDB() {
               }
           }
       );
-        console.log("Done")
     }
     catch(error){
         console.log(error);

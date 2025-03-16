@@ -26,14 +26,13 @@ const medicineRoute=require('./routes/medicine.route');
 const { initSocket } = require("./sockets/socket.config");
 const app=express();
 const server = require("http").createServer(app);
-const PORT=8080;
+const PORT=process.env.PORT || 8080;
 const corsOpts = {
-  origin: "*",
-  
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  
-  allowedHeaders: ["Content-Type"],
-};
+	origin: "*",  // Change this to your frontend URL for security
+	methods: ["GET", "POST", "PUT", "DELETE"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+	credentials: true, // ✅ Allow credentials (cookies, tokens, etc.)
+  };
 app.use(express.json()); 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -53,40 +52,6 @@ app.use("/test",testRoute);
 app.use("/testGroup",groupTestRoute);
 app.use("/feeRoute",feeRoute);
 app.use("/medicine",medicineRoute);
-/* app.get('/fee',async(req,res)=>
-{
-	const { test,name } = req.query;
-	try {
-		await MedDB.connect();
-		const DATABASE = MedDB.db("MedfolioDB");
-		const USERCOLLECTION = DATABASE.collection("Tests");
-		let fees = [];
-		fee=0;
-		(await USERCOLLECTION.find({ name:name }).toArray()).forEach((l) => {
-		  //console.log(l.tests);
-		 
-			l.tests.forEach((e) => {
-			  if (e.test_name == test) {
-				console.log(e.fee);
-				fees.push(e.fee);
-				console.log(fees);
-				res.json(e.fee);
-				
-			  }
-			});
-		  
-	
-		  
-		});
-		console.log("hii");
-	   
-	
-		
-	  } catch (error) {
-		console.log("error");
-	  }
-
-})*/
 app.use("/payment",paymentRoute);
 app.use("/prescriptions",prescriptionRoute);
 const io = require("socket.io")(server, {
@@ -95,18 +60,6 @@ const io = require("socket.io")(server, {
     methods: [ "GET", "POST" ]
   }
 });
-/* io.on('connection', (socket) => {
-	console.log('a user connected');
-  
-	socket.on('join', (userEmail) => {
-	  socket.join(userEmail);
-	});
-  
-	socket.on('disconnect', () => {
-	  console.log('user disconnected');
-	});
-  }); */
 server.listen(PORT,()=>{
     console.log("Server is running on port 8080")
 })
-module.exports = { io };

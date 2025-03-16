@@ -9,10 +9,8 @@ const list = async () => {
     await MedDB.connect();
     const DATABASE = MedDB.db("MedfolioDB");
     const USERCOLLECTION = DATABASE.collection("Tests");
-    //console.log("jii");
     let list = [];
     (await USERCOLLECTION.find({}).toArray()).forEach((l) => {
-        //console.log(l.tests);
       l.tests.forEach((e)=>
     {
         list.push(e.test_name);
@@ -43,8 +41,6 @@ const list = async () => {
       start = false;
       count = 0;
     }
-    
-    console.log(outputArray);
     return { outputArray };
   } catch (error) {
     console.log("err");

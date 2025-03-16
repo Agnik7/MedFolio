@@ -28,7 +28,6 @@ export default function TopBar({
   const [close,setClose]=useState(false);
   const handleView = () => {
     setView(!view);
-    console.log(view);
   };
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -42,16 +41,13 @@ export default function TopBar({
       setClose(true);
     }
   const fetchNotifications = async () => {
-      console.log(user)
       await axios.post(`${baseUrl}/user/notifications`,{user: user})
       .then((res)=>{
-        console.log(res);
         setNotifications(res.data.notifications)
       })
       .catch((error)=>{
         console.log(error);
       })
-      //setNotifications(response.data);
   };
   useEffect(() => {
 

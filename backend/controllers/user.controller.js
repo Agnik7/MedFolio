@@ -7,7 +7,6 @@ const user = async(req, res)=>{
 }
 const register = async(req, res)=>{
     const {name, email, password, userType, city, specialization, fees, experience, gender, age, bloodGroup, mobile} = req.body;
-    console.log("Registering")
     if (!(name && email && password && userType))
         return res.status(400).send("All fields must be filled");
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,7 +20,6 @@ const register = async(req, res)=>{
 
 const login = async(req, res)=>{
     const {email, password, userType} = req.body;
-    console.log(email)
     if (!(email && password && userType))
         return res.status(401).json({success:false, message: "Please enter all fields"});
     const {user, error,status} = await loginUser(email,password,userType);
@@ -48,7 +46,6 @@ const bookAppointment = async(req,res)=>{
     
     if(error === null){
         const {doctor} = await fetchDoctor({ email: doctorEmail });
-        console.log(doctor);
         const {notification} = await postNotification({doctor, user, date, time});
         return res.status(status).json({success:true, message: "Appointment Booked Successfully", updatedUser:user})
     }
@@ -58,7 +55,6 @@ const bookAppointment = async(req,res)=>{
 
 const edit = async(req, res)=>{
     const {name, email, password, userType, city, profilePic, specialization, fees, experience, gender, age, bloodGroup, mobile} = req.body;
-    console.log("Editing");
     const {user, error,status} = await editUser({username:name, email, userType, profilePic:profilePic, specialization, city, fees, experience, gender, age, bloodGroup,mobile})
     if(error === null)
         return res.status(status).json({success:true, message: "User Edited Successfully", user:user})
@@ -67,9 +63,7 @@ const edit = async(req, res)=>{
 }
 const notifications = async(req,res)=>{
     const {user} = req.body;
-    console.log("User = ",user)
     const notification = await fetchNotification({email:user.email, userType:user.type})
-    console.log("Notifications = ", notification)
     if(notification !== undefined)
         return res.status(200).json({success:true, message:"Notifications received", notifications:notification})
     else
@@ -78,7 +72,6 @@ const notifications = async(req,res)=>{
 const ratings= async(req,res)=>{
     const {doctorName, userRating} = req.body;
     const {doctor} = await fetchDoctorByName({ name: doctorName });
-    console.log(doctor)
     const patientsLength = doctor.appointments.length;
     const result = await postRating({doctor,userRating,patientsLength});
     if(result)

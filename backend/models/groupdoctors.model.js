@@ -10,25 +10,21 @@ const group=async({location,speciality})=>
         await MedDB.connect();
         const DATABASE = MedDB.db('MedfolioDB');
         const USERCOLLECTION = DATABASE.collection('Doctors');
-        console.log(speciality+" "+location);
         if(location==null)
         {
             const groupDoctors=await USERCOLLECTION.find({specialization:speciality}).toArray();
-            console.log(groupDoctors);
         return {groupDoctors}
 
         }
         else if(speciality==null)
         {
             const groupDoctors=await USERCOLLECTION.find({city:location}).toArray();
-            console.log(groupDoctors);
         return {groupDoctors}
 
         }
         else if(speciality!=null && location!=null)
         {
             const groupDoctors=await USERCOLLECTION.find({city:location,specialization:speciality}).toArray();
-            console.log(groupDoctors);
         return {groupDoctors}
 
         }

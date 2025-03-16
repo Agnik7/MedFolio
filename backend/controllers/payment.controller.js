@@ -9,7 +9,6 @@ const paymentOrder = async(req,res)=>{
       currency: "INR", //Mandatory
       receipt: "Booking Doctor", //Optional
       })
-      console.log(order)
       if (!order) {
         return res.status(500).send("Error");
       }
@@ -25,7 +24,6 @@ const paymentOrder = async(req,res)=>{
 
 const paymentValidate =  async (req, res) => {
     // Check if a user with the provided email already exists
-    console.log("Validation API")
     const {email, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     
     const sha = crypto.createHmac("sha256", process.env.VITE_RAZORPAY_API_KEY_SECRET);

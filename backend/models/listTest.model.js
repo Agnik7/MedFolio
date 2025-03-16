@@ -38,8 +38,6 @@ const list = async () => {
       start = false;
       count = 0;
     }
-
-    console.log(outputArray);
     return { outputArray };
   } catch (error) {
     console.log("err");

@@ -8,17 +8,12 @@ const publicKey = process.env.SUPABASE_PUBLIC_KEY;
 const supabase = createClient(url, publicKey);
 const fetchPrescription = async ({ userEmail, doctorEmail }) => {
     try {
-        console.log("Connecting to MongoDB...");
         await MedDB.connect();
-        console.log("connected")
         const DATABASE = MedDB.db('MedfolioDB');
         let USERCOLLECTION = DATABASE.collection('User');
         let DOCTORCOLLECTION = DATABASE.collection('Doctors');
-        
-        console.log("Fetching user and doctor...");
         const user = await USERCOLLECTION.findOne({ email: userEmail });
         const doctor = await DOCTORCOLLECTION.findOne({ email: doctorEmail });
-        console.log(user._id.toHexString());
         const { data, error } = await supabase
       .from('prescriptions')
       .select()
@@ -29,7 +24,6 @@ const fetchPrescription = async ({ userEmail, doctorEmail }) => {
       console.error("Error fetching data:", error);
       return {data:[]}
     } else {
-      console.log("=================\n", data, "\n=================");
       return { data:data };
     }
       } catch (error) {
@@ -42,17 +36,12 @@ const fetchPrescription = async ({ userEmail, doctorEmail }) => {
   };
   const addPrescription = async ({ userEmail, doctorEmail, details }) => {
     try {
-        console.log("Connecting to MongoDB...");
         await MedDB.connect();
-        console.log("connected")
         const DATABASE = MedDB.db('MedfolioDB');
         let USERCOLLECTION = DATABASE.collection('User');
         let DOCTORCOLLECTION = DATABASE.collection('Doctors');
-        
-        console.log("Fetching user and doctor...");
         const user = await USERCOLLECTION.findOne({ email: userEmail });
         const doctor = await DOCTORCOLLECTION.findOne({ email: doctorEmail });
-        console.log(user._id.toHexString());
         const { data, error } = await supabase
       .from('prescriptions')
       .insert([
@@ -63,7 +52,6 @@ const fetchPrescription = async ({ userEmail, doctorEmail }) => {
         console.error("Error adding prescription:", error);
         return false;
         } else {
-        console.log("Prescription added successfully:", data);
         return true;
         }
       } catch (error) {
@@ -76,17 +64,12 @@ const fetchPrescription = async ({ userEmail, doctorEmail }) => {
   };
   const updatePrescription = async ({ userEmail, doctorEmail, details }) => {
     try {
-        console.log("Connecting to MongoDB...");
         await MedDB.connect();
-        console.log("connected")
         const DATABASE = MedDB.db('MedfolioDB');
         let USERCOLLECTION = DATABASE.collection('User');
         let DOCTORCOLLECTION = DATABASE.collection('Doctors');
-        
-        console.log("Fetching user and doctor...");
         const user = await USERCOLLECTION.findOne({ email: userEmail });
         const doctor = await DOCTORCOLLECTION.findOne({ email: doctorEmail });
-        console.log(user._id.toHexString());
         const { data, error } = await supabase
       .from('prescriptions')
       .update({ details: details })
@@ -97,7 +80,6 @@ const fetchPrescription = async ({ userEmail, doctorEmail }) => {
         console.error("Error updating prescription:", error);
         return false;
         } else {
-        console.log("Prescription updated successfully:", data);
         return true;
         }
       } catch (error) {

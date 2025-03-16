@@ -9,11 +9,9 @@ export default function Filter(props) {
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const Place = (e) => {
     props.setLocation(e.target.value);
-    //console.log(props.location);
   };
   const Change = (e) => {
     props.setSpecial(e.target.value);
-    //console.log(props.location);
   };
 
   const getData = async () => {
@@ -23,7 +21,6 @@ export default function Filter(props) {
       const response = await axios.get(`${baseUrl}/locationRoute/list`);
       setCheckCity(false);
       setCity(response.data.outputArray);
-      //console.log(response.data.doctors);
       const res = await axios.get(`${baseUrl}/specialityRoute/list`);
       setSpecial(false);
       setSpeciality(res.data.outputArray);
@@ -32,19 +29,17 @@ export default function Filter(props) {
     }
   };
   useEffect(() => {
-    //console.log(props.location);
-
     getData();
   }, []);
   return (
-    <span className="box shadow-lg shadow-[gray] bg-white w-[90%] md:w-[50%] h-[5rem] rounded-[5rem] flex flex-row justify-center items-center gap-10 p-4">
-      <div className="w-[98%] md:w-[60%] flex flex-row justify-between items-center">
-        <div className="w-[7rem]   p-2 rounded-md  outline-none flex flex-col justify-start items-start">
-          <label for="cities">Choose a city:</label>
+    <span className="box shadow-lg shadow-[gray] bg-white w-[90%] md:w-[60%] rounded-[5rem] flex flex-row justify-center items-center gap-10 px-4">
+      <div className="w-[98%] flex flex-row justify-between md:justify-center md:gap-[2rem] items-center">
+        <div className="p-2 rounded-md  outline-none flex flex-row justify-start items-start">
+          <label for="cities" className="text-[1rem]">City:</label>
           <select
             id="cities"
             name="cities"
-            className="w-full outline-none"
+            className="w-full outline-none text-[1rem]"
             value={props.location}
             onChange={Place}
           >
@@ -57,12 +52,12 @@ export default function Filter(props) {
             )}
           </select>
         </div>
-        <div className="w-[10rem]  p-2 rounded-md  outline-none flex flex-col justify-start items-start">
-          <label for="specialty">Choose a specialty:</label>
+        <div className="p-2 rounded-md  outline-none flex flex-row justify-start items-start">
+        <label for="cities" className="text-[1rem]">Specialty:</label>
           <select
             id="specialty"
             name="specialty"
-            className="w-full outline-none "
+            className="w-full text-[1rem] outline-none "
             value={props.special}
             onChange={Change}
           >

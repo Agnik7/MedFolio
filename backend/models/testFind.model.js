@@ -11,7 +11,6 @@ const list = async ({city,test}) => {
     const USERCOLLECTION = DATABASE.collection("Tests");
     let list = [];
     (await USERCOLLECTION.find({city:city}).toArray()).forEach((l) => {
-        //console.log(l.tests);
       p=0;
       l.tests.forEach((e)=>
     {
@@ -20,10 +19,8 @@ const list = async ({city,test}) => {
            p=1;
         }
     })
-    //console.log(p)
     if(p==1)
     {
-      //console.log(p+"hh");
         list.push(l.name);
     }
     });
@@ -52,8 +49,6 @@ const list = async ({city,test}) => {
       start = false;
       count = 0;
     }
-
-    console.log("output"+outputArray);
     return { outputArray };
   } catch (error) {
     console.log("err");

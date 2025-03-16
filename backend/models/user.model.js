@@ -69,6 +69,7 @@ const registerUser = async({username, email, hashedPassword, userType, profilePi
           return {user:user, error: null, status:200};
     }
     catch(error){
+        console.log("Error")
         return {token: null, error: error, status: existing?400:500};
     }
     finally {
@@ -86,7 +87,6 @@ const loginUser = async(email, password, userType)=>{
             USERCOLLECTION = DATABASE.collection('User');
         else
             USERCOLLECTION = DATABASE.collection('Doctors')
-        console.log("email = ", email)
         const existingUser = await USERCOLLECTION.findOne({ email: email });
         if (!existingUser) {
             existing = false;            
@@ -150,14 +150,11 @@ const bookMedicalAppointment = async({doctorEmail, userEmail, date, time, diseas
     try {
         await MedDB.connect();
         const DATABASE = MedDB.db('MedfolioDB');
-        console.log("Inside model")
         let userCollection = DATABASE.collection('User');
         let doctorCollection = DATABASE.collection('Doctors');
         // Find the user and doctor
         const user = await userCollection.findOne({ email: userEmail });
         const doctor = await doctorCollection.findOne({ email: doctorEmail });
-        console.log("User = ",user);
-        console.log("Doctor = ",doctor);
         if (!user || !doctor) {
             throw new Error('User or Doctor not found');
         }
@@ -194,7 +191,6 @@ const bookMedicalAppointment = async({doctorEmail, userEmail, date, time, diseas
             { returnDocument: 'after' }
         );
         delete updatedUser.password;
-        console.log(updatedUser)
         // Update doctor's appointments
         const upd = await doctorCollection.findOneAndUpdate(
             { email: doctorEmail },
@@ -215,7 +211,6 @@ const editUser = async({username, email, userType, profilePic, specialization, c
         await MedDB.connect();
         const DATABASE = MedDB.db('MedfolioDB');
         let USERCOLLECTION;
-        console.log("In the model")
         let user;
         if(userType === 'patient')
         {
@@ -247,7 +242,6 @@ const editUser = async({username, email, userType, profilePic, specialization, c
             USERCOLLECTION = DATABASE.collection('Doctors')
         }
         const editedUser = await USERCOLLECTION.findOneAndUpdate({ email: email },{$set:user},{ returnDocument: 'after' });
-            console.log(editedUser)
           delete editedUser.password;
           return {user:user, error: null, status:200};
     }
@@ -267,7 +261,6 @@ const fetchDoctor=async({email})=>{
         const DATABASE = MedDB.db('MedfolioDB');
         
         let USERCOLLECTION = DATABASE.collection('Doctors');
-        console.log("In the model")
         const doctor = await USERCOLLECTION.findOne({email:email})
         
         return {doctor:doctor};
@@ -284,12 +277,9 @@ const fetchDoctorByName=async({name})=>{
 
     try {
         await MedDB.connect();
-        const DATABASE = MedDB.db('MedfolioDB');
-        
+        const DATABASE = MedDB.db('MedfolioDB');        
         let USERCOLLECTION = DATABASE.collection('Doctors');
-        console.log("In the model")
-        const doctor = await USERCOLLECTION.findOne({name:name})
-        
+        const doctor = await USERCOLLECTION.findOne({name:name})        
         return {doctor:doctor};
     }
     catch(error){
@@ -305,10 +295,8 @@ const postNotification=async({doctor,user,userName, date, time})=>{
 
     try {
         await MedDB.connect();
-        const DATABASE = MedDB.db('MedfolioDB');
-        
+        const DATABASE = MedDB.db('MedfolioDB');        
         let USERCOLLECTION = DATABASE.collection('Notifications');
-        console.log("In the model")
         const notification = {
             doctorEmail: doctor.email,
             userEmail: user.email,
@@ -334,21 +322,14 @@ const postNotification=async({doctor,user,userName, date, time})=>{
 const fetchNotification = async ({ email, userType }) => {
         await MedDB.connect();
         const DATABASE = MedDB.db('MedfolioDB');
-        console.log("User email = ", email, "userType = ", userType)
         const USERCOLLECTION = DATABASE.collection('Notifications');
-        console.log("Connected to the database");
-
         let notifications;
         if (userType === 'patient') {
             notifications = await USERCOLLECTION.find({ userEmail: email }).toArray();
         } else {
             notifications = await USERCOLLECTION.find({ doctorEmail: email }).toArray();
-        }
-
-        console.log("Notifications fetched:", notifications);
-        
-        return notifications;
-    
+        }        
+        return notifications;    
 };
 
 const postRating = async({doctor,userRating, patientsLength})=>{
@@ -357,8 +338,6 @@ const postRating = async({doctor,userRating, patientsLength})=>{
         const DATABASE = MedDB.db('MedfolioDB');
         
         let USERCOLLECTION = DATABASE.collection('Doctors');
-        console.log("In the model")
-        console.log(`Rating: ${(Number(doctor.rating)+Number(userRating))/patientsLength}, ${typeof doctor.rating}, ${typeof userRating}, ${typeof patientsLength}`)
         const insertRating = await USERCOLLECTION.findOneAndUpdate({email:doctor.email},
         {
             $set:{

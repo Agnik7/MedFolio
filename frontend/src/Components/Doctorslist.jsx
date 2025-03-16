@@ -15,7 +15,6 @@ export default function Doctorslist({location,special,user, setUser}) {
     setLoad(true);
     try {
       const res = await axios.get(`${baseUrl}/doctorsRoute/view`);
-      console.log("API Response:", res.data, location);
       setDoctors(res.data.doctors);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -27,7 +26,6 @@ export default function Doctorslist({location,special,user, setUser}) {
       const response = await axios.get(
         `${baseUrl}/groupRoute/group?location=${location}`
       );
-      console.log(response);
       setDoctors(response.data.groupDoctors);
       //
     } catch (error) {
@@ -51,7 +49,6 @@ export default function Doctorslist({location,special,user, setUser}) {
       const response = await axios.get(
         `${baseUrl}/groupRoute/group?location=${location}&speciality=${special}`
       );
-      console.log(response);
       setLoad(false);
       setDoctors(response.data.groupDoctors);
       //
@@ -61,22 +58,15 @@ export default function Doctorslist({location,special,user, setUser}) {
   };
 
   useEffect(() => {
-    console.log("Doctors state updated:", doctors);
-  }, [doctors]);
-
-  useEffect(() => {
-    console.log("User in doctors page = ", user)
     getData();
   }, []);
 
   useEffect(() => {
     getDocAll();
-
-    console.log(location);
   }, [special, location]);
 
   return (
-    <section className="w-full py-4 h-full overflow-y-scroll flex flex-row justify-center items-center flex-wrap ">
+    <section className="w-[90%] py-4 h-full overflow-y-scroll flex flex-row justify-center items-center flex-wrap ">
       {load == true ? (
         <div className="w-full h-full flex justify-center items-center">
           <ClipLoader

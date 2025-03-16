@@ -14,7 +14,7 @@ export default function PrescriptionModal({ doctor, user }) {
       details: prescription
     })
     .then((res) => {
-      console.log(res);
+      console.log("Prescription Saved Successfully");
     })
     .catch((error) => {
       console.log(error);
@@ -23,7 +23,6 @@ export default function PrescriptionModal({ doctor, user }) {
   const fetchPrescription = async () => {
     await axios.get(`${baseUrl}/prescriptions/get?userEmail=${user.type === 'patient' ? user.email : doctor.userEmail}&doctorEmail=${user.type === 'patient' ? doctor.doctorEmail : user.email}`)
     .then((res) => {
-      console.log(res);
       if (res.data.prescription.length > 0) {
         setPrescription(res.data.prescription[0].details);
         setPrescriptionExists(true);

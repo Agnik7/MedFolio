@@ -11,7 +11,6 @@ const show=async()=>
         const DATABASE = MedDB.db('MedfolioDB');
         const USERCOLLECTION = DATABASE.collection('Doctors');
         const doctors=await USERCOLLECTION.find({}).toArray();
-        console.log(doctors);
         return {doctors:doctors}
     } catch (error) {
         console.log("err");

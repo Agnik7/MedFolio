@@ -1,5 +1,4 @@
 # MEDFOLIO
-
 MEDFOLIO is a comprehensive healthcare application built using the MERN stack (MongoDB, Express.js, React, Node.js) along with Vite for a fast and efficient development experience and Tailwind CSS for styling. This project aims to provide a wide range of features to enhance patient-doctor interaction and healthcare management.
 
 ## Features

@@ -58,19 +58,14 @@ function App() {
   const [actDoc, setActDoc] = useState("");
   const handleOpen = () => {
     setMainOpen(!mainopen);
-    console.log(mainopen);
   };
-  useEffect(() => {
-    console.log(checkName);
-  }, []);
   useEffect(() => {
     if (user.isLoggedIn === true)
       localStorage.setItem("userData", JSON.stringify(user));
-    console.log(user);
   }, [user.isLoggedIn]);
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("userData"));
-
+    
     if (userData) {
       setUser({ ...userData });
     } else {
@@ -98,7 +93,7 @@ function App() {
     }
   }, []);
   return (
-    <section className="relative min-h-screen bg-[#BAC9D5] m-0">
+    <section className="relative min-h-screen bg-[#d9e1e9] m-0">
       {user.isLoggedIn && (
         <TopBar
           user={user}
@@ -246,7 +241,7 @@ function App() {
 
       <button
         className={`${
-          checkName == 1 ? "block" : "hidden"
+          checkName == 1 && user.isLoggedIn === true ? "block" : "hidden"
         } z-40 block sm:hidden bg-[#1C4C58] rounded-full p-1 absolute top-5 left-1`}
         onClick={handleOpen}
       >

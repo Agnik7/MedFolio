@@ -48,7 +48,6 @@ export default function Rating({showrating,setShowrating,actDoc}) {
       doctorName: actDoc
     })
     .then((res)=>{
-      console.log((res))
       setHide(false);
     })
     .catch((error)=>{

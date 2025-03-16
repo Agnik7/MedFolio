@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/Logo.png";
-import { MapPin, ImagePlus, Send, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, ImagePlus, Send, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { uploadImageToFirebase } from "../../firebase/firebase.init";
 import { generateRoomId } from "../lib/misc";
 import axios from "axios";
@@ -19,6 +19,7 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
   const [doctorData, setDoctorData] = useState([]);
   const [disease, setDisease] = useState("");
   const [specialist, setSpecialist] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setCount(0);
@@ -28,6 +29,7 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
     setSymptoms("");
     setImage(null);
     setImageFile(null);
+    setUserCity("");
   };
 
   const handleLocationClick = () => {
@@ -36,18 +38,13 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        console.log("Latitude:", latitude);
-        console.log("Longitude:", longitude);
-
         try {
           const response = await fetch(
             `https://api.opencagedata.com/geocode/v1/json?q=${latitude}%2C${longitude}&key=${API}`
           );
           const data = await response.json();
-          console.log(data);
           const city =
             data.results[0].components.city || data.results[0].components.town;
-          alert(city);
           setUserCity(city);
         } catch (error) {
           console.error("Error fetching city:", error);
@@ -60,9 +57,7 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
   };
 
   const handleImageUpload = async (event) => {
-    console.log("Image Upload");
     const file = event.target.files[0];
-    console.log(file);
     if (file) {
       setImage(URL.createObjectURL(file));
       setImageFile(file);
@@ -77,6 +72,7 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
 
   const handleSend = async () => {
     setShowResults(false);
+    setLoading(true);
     let body;
 
     if (imageFile) {
@@ -98,12 +94,10 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
 
     try {
       const res = await axios.post(`${baseUrl}/disease/details`, body);
-      console.log(res);
       setDisease(res.data.disease);
       setShowResults(true);
       setSpecialist(res.data.specialization);
-      if (res.data.imageURL) 
-        setImageURL(res.data.imageURL);
+      if (res.data.imageURL) setImageURL(res.data.imageURL);
 
       if (res.data.doctorData && res.data.doctorData.length > 0) {
         setDoctorData(res.data.doctorData);
@@ -114,9 +108,8 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
     } catch (error) {
       console.log(error);
     }
-
-    console.log(body);
     clear();
+    setLoading(false);
   };
 
   const itemsPerPage = 3;
@@ -136,7 +129,12 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
   };
 
   return (
-    <div className="bg-white relative h-[calc(100%-1rem)] overflow-x-hidden rounded-xl p-2 w-full mx-4">
+    <div className="bg-gradient-to-br from-gray-300 to-gray-400 relative h-[calc(100%-1rem)] overflow-x-hidden rounded-xl p-2 w-full mx-4">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <Loader2 className="w-12 h-12 text-[#1C4C58] animate-spin" />
+        </div>
+      )}
       {showResults && (
         <div className="w-full h-3/4">
           <div className="flex flex-col items-center w-full">
@@ -150,7 +148,6 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
               <p className="text-[1.2rem] font-semibold">
                 Specialist: <span className="font-normal">{specialist}</span>
               </p>
-
             </div>
           </div>
           <div className="flex justify-between mx-4">
@@ -185,7 +182,7 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
             )}
           </div>
           {doctorData.length > 0 && (
-            <div className="overflow-x-auto my-4 w-full flex justify-start md:justify-center items-center ">
+            <div className="overflow-x-auto my-4 w-full flex justify-start md:justify-center items-center">
               <table className="min-w-full max-w-[50rem]">
                 <thead>
                   <tr>
@@ -235,7 +232,12 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
       )}
 
       <div className="absolute w-[98%] bottom-0 left-1/2 -translate-x-1/2">
-        <div className="bg-[#1B4D56] bg-opacity-40 rounded-lg my-2 flex flex-col justify-end gap-0">
+        <div className="bg-gradient-to-b from-white/50 to-white/60 rounded-lg my-2 flex flex-col justify-end gap-0">
+          <div className="flex flex-col items-end px-2 w-full">
+            <p className="px-1 w-[15rem] font-medium">
+              Location<span className="text-red-600">*</span> : {userCity}
+            </p>
+          </div>
           {image && (
             <div className="relative max-w-24 mx-2 mt-2">
               <img
@@ -261,7 +263,7 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
                 if (e.target.value) setImage(null);
               }}
               disabled={!!image}
-              className="flex-grow border-b-2 placeholder:text-white bg-transparent border-white focus:outline-none focus:border-white/80"
+              className="flex-grow border-b-2 placeholder:text-gray-500 bg-transparent border-gray-800 focus:outline-none focus:border-white/80"
             />
             <div className="flex items-end space-x-2">
               <button onClick={handleLocationClick} className="py-1">
@@ -296,4 +298,3 @@ export default function DiseaseChecker({ user, setUser, setCount }) {
     </div>
   );
 }
-

@@ -35,13 +35,13 @@ export default function Home({
           animate="visible"
         >
           <motion.h1
-            className="text-[2rem] md:text-[3rem] lg:text-[4.5rem] font-medium text-center sm:text-left text-[#0E282D]"
+            className="text-[2rem] md:text-[3rem] lg:text-[4.5rem] font-bold tracking-tight text-center sm:text-left text-[#0E282D]"
             variants={item}
           >
             Navigating Your Health,One Step at a Time...
           </motion.h1>
           <motion.p
-            className="bg-[#dce5e7] border-[3px] border-solid border-[#b9c4ca] rounded-[2rem] text-[#1C4C58] px-4 py-2 font-semibold text-[1.2rem]"
+            className="bg-[#0E282D] rounded-[2rem] cursor-default text-[#F8F9FA] px-4 py-2 font-semibold text-[1.2rem]"
             variants={item}
           >
             Manage.Connect.Care
@@ -55,14 +55,10 @@ export default function Home({
             booking, and prescription access. Experience seamless healthcare
             today.
           </motion.p>
-          {/* <motion.button className="xsm:mx-2 mx-1 text-center bg-white p-2 rounded-[2rem] flex justify-center items-center border-[3px] border-[solid] border-[#919cba] hover:bg-[#919cba] text-[#1C4C58] font-semibold text-[1.3rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem] "
-          variants={item}>
-            Start now
-          </motion.button> */}
           <AuthModal 
           user={user} 
           setUser={setUser} 
-          authClass="text-center bg-white p-2 rounded-[2rem] flex justify-center items-center border-[3px] border-[solid] border-[#919cba] hover:bg-[#919cba] text-[#1C4C58] font-semibold text-[1.3rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem]" 
+          authClass="text-center -mx-4 bg-white p-2 rounded-[2rem] flex justify-center items-center border-[3px] border-[solid] border-[#0E282D] hover:bg-[#0E282D] text-[#0E282D] font-semibold text-[1.3rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem]" 
           itemVariants={item}
           />
         </motion.div>

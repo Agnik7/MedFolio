@@ -43,7 +43,7 @@ export default function AboutUs() {
             <motion.img src={box1} alt="box3" variants={item} />
           </div>
         </motion.div>
-        <motion.div className="w-full md:w-[45%] flex flex-col justify-center items-center md:items-start gap-5 text-[#1C4C58]"
+        <motion.div className="w-full md:w-[45%] flex flex-col justify-center items-center md:items-start gap-5 text-[#0E282D]"
         initial={{opacity:0}}
         whileInView={{opacity:1}}
         transition={{duration:1.5}}>
@@ -58,7 +58,7 @@ export default function AboutUs() {
             healthcare accessibility and experience the future of medical
             consultation today.
           </p>
-          <button className="btn xsm:mx-2 mx-1 text-center bg-white p-2 rounded-[2rem] flex justify-center items-center gap-2 border-[3px] border-[solid] border-[#919cba] hover:bg-[#919cba] text-[#1C4C58] font-semibold text-[1.2rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem] ">
+          <button className="btn xsm:mx-2 mx-1 text-center bg-transparent p-2 rounded-[2rem] flex justify-center items-center gap-2 border-[3px] border-[solid] border-[#0E282D] hover:bg-[#0E282D] text-[#0E282D] font-semibold text-[1.2rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem] ">
             <p>Know more</p>
             <MoveRight className="hidden arrow" />
           </button>

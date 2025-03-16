@@ -27,7 +27,6 @@ export default function BookingModal({disease,user,setUser, userName, userEmail,
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
   const paymentHandler = async (e, amount, doctorEmail, userEmail, date, time, userName) => {
-    console.log("payment handler")
     if (isPaying) return; // Prevent multiple instances
 
     setIsPaying(true); // Set the flag to true when payment process starts
@@ -51,7 +50,6 @@ export default function BookingModal({disease,user,setUser, userName, userEmail,
           `${baseUrl}/payment/order/validate`, body
         );
         if (validateRes.data.msg === 'success') {
-          console.log("Payment Successful");
           // book appointment
           const appointmentBody = {
             doctorEmail: doctorEmail,
@@ -62,11 +60,8 @@ export default function BookingModal({disease,user,setUser, userName, userEmail,
           };
           await axios.post(`${baseUrl}/user/book`, appointmentBody)
             .then((res) => {
-              console.log("Appointment booked successfully");
-              console.log(res);
               let newUser = { ...user, appointments: res.data.updatedUser.appointments };
               localStorage.setItem("userData", JSON.stringify(newUser));
-              console.log(newUser);
               setUser(newUser);
             })
             .catch((err) => {

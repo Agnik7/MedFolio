@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import logo from "../assets/Logo.png";
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-export default function Medical({ count, setCount,user,setUser }) {
+
+export default function Medical({ count, setCount }) {
   const [tests, setTests] = useState([]);
-  const swal = withReactContent(Swal);
   const [location, setLocation] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [city, setCity] = useState("Kolkata");
@@ -16,57 +13,9 @@ export default function Medical({ count, setCount,user,setUser }) {
   const [place, setPlace] = useState("Kolkata Diagnostic Center");
   const [fee, setFee] = useState(0);
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const [loc,setLoc]=useState(false);
-  const [medi,setMedi]=useState(false);
-  const paymentHandler = async (e) => {
-    console.log("in payment handler")
- 
-    const res = await axios.post(`${baseUrl}/payment/order`, { fees: (Number(fee) * 100) });
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_API_KEY_ID, // Enter the Key ID generated from the Dashboard
-      amount: (Number(fee) * 100), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-      currency: "INR",
-      name: "MedFolio", // your business name
-      description: `Payment for purchasing booking ${test} from ${place} in ${city} by ${user.fullName}`,
-      image: logo,
-      order_id: res.data.id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-      handler: async function (response) {
-        const body = {
-          ...response,
-          email: user.email
-        };
+  const [loc, setLoc] = useState(false);
+  const [medi, setMedi] = useState(false);
 
-        const validateRes = await axios.post(
-          `${baseUrl}/payment/order/validate`, body
-        );
-        if (validateRes.data.msg === 'success') {
-          swal.fire({
-            title: "Successful!",
-            text: "Test booked successfully",
-            icon: "success"
-          })
-          // book appointment
-        }
-      },
-      prefill: {
-        name: user.name, // your customer's name
-        email: user.email // Provide the customer's phone number for better conversion rates
-      },
-      notes: {
-        address: "MedFolio website",
-      },
-      theme: {
-        color: "#1C4C58",
-      },
-    };
-    let rzp1 = new window.Razorpay(options);
-    rzp1.on("payment.failed", function (response) {
-      alert("Payment failed. Please try again");
-      setIsPaying(false); // Reset the flag on failure
-    });
-    rzp1.open();
-    e.preventDefault();
-  };
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -75,15 +24,12 @@ export default function Medical({ count, setCount,user,setUser }) {
     setMedi(true);
     try {
       const response = await axios.get(`${baseUrl}/testRoute/list`);
-      console.log(response.data.outputArray);
       setLoc(false);
       setLocation(response.data.outputArray);
 
       const res = await axios.get(`${baseUrl}/test/list`);
       setMedi(false);
       setTests(res.data.outputArray);
-
-      console.log(res);
     } catch (error) {
       console.log("err");
     }
@@ -93,7 +39,6 @@ export default function Medical({ count, setCount,user,setUser }) {
       const response = await axios.get(
         `${baseUrl}/testGroup/group?city=${city}&test=${test}`
       );
-      console.log(response);
       setCenter(response.data.outputArray);
     } catch (error) {
       console.log("err");
@@ -104,7 +49,6 @@ export default function Medical({ count, setCount,user,setUser }) {
       const response = await axios.get(
         `${baseUrl}/feeRoute/fee?name=${place}&test=${test}&city=${city}`
       );
-      console.log(response);
       setFee(response.data.fees);
     } catch (error) {
       console.log("err");
@@ -138,12 +82,13 @@ export default function Medical({ count, setCount,user,setUser }) {
               value={city}
               onChange={(e) => setCity(e.target.value)}
             >
-              {loc==true?(<option value="Load">Loading...</option>):(
+              {loc == true ? (
+                <option value="Load">Loading...</option>
+              ) : (
                 location.map((e) => {
                   return <option value={e}>{e}</option>;
                 })
               )}
-              
             </select>
           </div>
           <div className="flex flex-col justify-start items-start">
@@ -155,10 +100,13 @@ export default function Medical({ count, setCount,user,setUser }) {
               value={test}
               onChange={(e) => setTest(e.target.value)}
             >
-              {medi==true?(<option value="load">Loading..</option>):(tests.map((e) => {
-                return <option value={e}>{e}</option>;
-              }))}
-              
+              {medi == true ? (
+                <option value="load">Loading..</option>
+              ) : (
+                tests.map((e) => {
+                  return <option value={e}>{e}</option>;
+                })
+              )}
             </select>
           </div>
         </div>
@@ -211,7 +159,7 @@ export default function Medical({ count, setCount,user,setUser }) {
             />
           </div>
         </div>
-        <button className="bg-white text-[#1C4C58] w-full rounded-[6rem] p-2 my-2 text-[1.2rem] font-bold hover:text-white hover:bg-[#1C4C58] transition-all ease-linear duration-150 hover:border-solid hover:border-[1px] hover:border-white" onClick={(e)=>{paymentHandler(e)}}>
+        <button className="bg-white text-[#1C4C58] w-full rounded-[6rem] p-2 my-2 text-[1.2rem] font-bold hover:text-white hover:bg-[#1C4C58] transition-all ease-linear duration-150 hover:border-solid hover:border-[1px] hover:border-white">
           Book Now
         </button>
       </div>

@@ -15,11 +15,8 @@ export default function Medicine({ count, setCount,user,setUser }) {
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const Change = (e) => {
     setMedicine(e.target.value);
-    console.log(medicine);
   };
   const paymentHandler = async (e, amount, userEmail, medicine, pharmacy_name, userName) => {
-    console.log("in payment handler")
-
     const res = await axios.post(`${baseUrl}/payment/order`, { fees: (Number(amount) * 100) });
     const options = {
       key: import.meta.env.VITE_RAZORPAY_API_KEY_ID, // Enter the Key ID generated from the Dashboard
@@ -76,7 +73,6 @@ export default function Medicine({ count, setCount,user,setUser }) {
           medicine.charAt(0).toUpperCase() + medicine.slice(1).toLowerCase()
         }`
       );
-      console.log(response.data.list);
       if (response.data.list.length == 0) {
         setLoad(true);
         setCheck(true);
@@ -97,7 +93,7 @@ export default function Medicine({ count, setCount,user,setUser }) {
   return (
     <section className="w-full h-full flex justify-center items-center">
       <div className="w-[80%] flex flex-col justify-start items-center gap-6  h-full p-1 sm:p-4">
-        <div className="flex justify-center items-center gap-4 md:gap-3 bg-white w-full sm:w-[25rem] h-[3rem] sm:h-[4rem] rounded-[5rem]">
+        <div className="flex justify-center items-center gap-4 md:gap-3 bg-white w-full sm:w-[25rem] h-[3rem] rounded-[5rem]">
           <input
             type="text"
             placeholder="Enter the medicine to be searched"
@@ -112,7 +108,7 @@ export default function Medicine({ count, setCount,user,setUser }) {
             <Search />
           </button>
         </div>
-        <section className="shadow-lg p-4 h-[90%] overflow-y-scroll w-full rounded-lg bg-blue-50 flex flex-row justify-center items-center flex-wrap gap-6">
+        <section className="shadow-lg p-4 h-[90%] overflow-y-scroll w-full rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex flex-row justify-center items-center flex-wrap gap-6">
           {load == false ? (
             <div className="w-full h-full flex justify-center items-center"><ClipLoader
             color="#1C4C58"

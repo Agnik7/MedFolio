@@ -10,7 +10,7 @@ import box from "../assets/box.svg";
 export default function SideNav({ user, setUser }) {
   return (
     <section
-      className={`bg-[#1C4C58] h-full sm:block hidden w-[12%] rounded-tr-[2rem] `}
+      className={`bg-[#0E282D] h-full sm:block hidden w-[12%] rounded-tr-[2rem] `}
     >
       <div className="h-full flex flex-col justify-center items-center w-full rounded-tr-[2rem]">
         <nav className="h-full flex flex-col justify-center items-center w-full rounded-tr-[2rem] relative">

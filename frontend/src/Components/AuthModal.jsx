@@ -170,7 +170,6 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
     })
       .then((res) => {
         setCheck(true);
-        console.log(res)
         let firstName = res.data.user.name.split(' ')[0];
         if (res.data.user.type === 'doctor') {
           firstName = res.data.user.name.startsWith('Dr. ') 
@@ -228,7 +227,6 @@ export default function AuthModal({ user, setUser, authClass, itemVariants }) {
       })
         .then((res) => {
           setCheckReset(true);
-          console.log(res);
           swal.fire({
             title: "Successful!",
             text: "Password Reset Successfully",

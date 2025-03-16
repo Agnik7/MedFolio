@@ -6,14 +6,9 @@ export default function Doctors({count,setCount,user,setUser}) {
   
   const [location,setLocation]=useState("Cities incoming....");
   const [special,setSpecial]=useState("Specialities incoming");
-  
+
   useEffect(() => {
-    //console.log("location"+location);
-   
-  }, [location]);
-  useEffect(() => {
-    setCount(0);
-   
+    setCount(0);   
   }, []);
   
   return (<section className="w-full pt-7 h-full flex flex-col justify-center items-center gap-6">

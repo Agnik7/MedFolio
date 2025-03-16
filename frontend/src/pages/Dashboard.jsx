@@ -24,7 +24,6 @@ export default function Dashboard({
     navigate("/");
   };
   useEffect(() => {
-    console.log("User in dashboard: ", user);
     setCount(1);
   }, []);
   return (

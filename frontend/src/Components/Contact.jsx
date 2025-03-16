@@ -29,13 +29,13 @@ export default function Contact() {
 
   return (
     <section id="contact">
-      <div className="px-5 text-[#1C4C58] flex flex-row justify-between items-center flex-wrap md:flex-nowrap gap-10">
+      <div className="px-5 text-[#0E282D] flex flex-row justify-between items-center flex-wrap md:flex-nowrap gap-10">
         <motion.div className="w-full md:w-[60%]  flex flex-col justify-start items-center md:items-start md:ml-10"
         initial={{opacity:0}}
         whileInView={{opacity:1}}
         transition={{duration:1}}>
           <h1 className="text-[3rem] font-semibold">Contact</h1>
-          <p className="text-[1.1rem] md:text-[left] text-center">
+          <p className="text-[1.1rem] text-[#0E282D] tracking-tight font-semibold md:text-[left] text-center">
             Feel free to contact us any time. We will get back to you as soon as
             we can!
           </p>
@@ -58,7 +58,7 @@ export default function Contact() {
               md:text-[1.5rem] text-[1.2rem] placeholder:text-[#1C4C58]"
               />
             </form>
-            <button className="xsm:mx-2 mx-1 text-center bg-white p-2 rounded-[2rem] flex justify-center items-center border-[3px] border-[solid] border-[#919cba] hover:bg-[#919cba] text-[#1C4C58] font-semibold text-[1.3rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem]">
+            <button className="xsm:mx-2 mx-1 text-center bg-white p-2 rounded-[2rem] flex justify-center items-center border-[3px] border-[solid] border-[#0E282D] hover:bg-[#0E282D] text-[#0E282D] font-semibold text-[1.3rem] hover:text-white  transition-all ease-linear duration-150 w-[13rem]">
               Send
             </button>
           </div>

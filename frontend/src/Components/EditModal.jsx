@@ -82,7 +82,6 @@ export default function EditModal({ user, setUser, authClass, itemVariants }) {
   const handlePicChange = async(event) => {
     if (event.target.files && event.target.files[0]) {
         const downloadURL = await uploadImageToFirebase(event.target.files[0]);
-        console.log(downloadURL)
         setPic(downloadURL);
     }
   };
@@ -109,7 +108,6 @@ export default function EditModal({ user, setUser, authClass, itemVariants }) {
       await axios.post(`${baseUrl}/user/edit`, newUser)
         .then((res) => {
           const firstName = res.data.user.name.split(' ')[0];
-          console.log(res.data)
           const updatedUser = {
             ...user,
             fullName: res.data.user.name,
